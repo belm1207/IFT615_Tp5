@@ -84,7 +84,55 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        if successorGameState.isWin():
+            return float("inf")
+
+        newFoodDistance = [manhattanDistance(food, newPos) for food in newFood.asList()]
+
+        prevFoodDistance = [manhattanDistance(food, currentGameState.getPacmanPosition()) for food in currentGameState.getFood().asList()]
+
+        newGhostDistance = [manhattanDistance(ghost.getPosition(), newPos) for ghost in newGhostStates]
+
+        prevGhostDistance = [manhattanDistance(ghost.getPosition(), newPos) for ghost in currentGameState.getGhostStates()]
+
+        score = 0
+        score += successorGameState.getScore() - currentGameState.getScore()
+
+        if action == Directions.STOP:
+            score -= 10
+
+        if newPos in currentGameState.getCapsules():
+            score += 250
+
+        if len(newFoodDistance) < len(currentGameState.getFood().asList()):
+            score += 200
+
+        if newPos in currentGameState.getFood().asList():
+            score += 200
+
+        score -= 15 * len(newFood.asList())
+
+        if min(newFoodDistance) < min(prevFoodDistance):
+            score += 100
+
+        if sum(newScaredTimes) > 0:
+            if min(prevGhostDistance) < min(newGhostDistance):
+                score += 200
+            else:
+                score -= 100
+        else:
+            if min(prevGhostDistance) < min(newGhostDistance):
+                score -= 100
+            else:
+                score += 200
+
+        # print("actual score : " + str(successorGameState.getScore()))
+        # print("ghost distance : " + str(ghostDistance))
+        # print("food distance : " + str(foodDistance))
+        # print("foodDistance: " + str(foodDistance))
+        print("score", score)
+        print("-----------------------------------------------------")
+        return score
 
 
 def scoreEvaluationFunction(currentGameState):
