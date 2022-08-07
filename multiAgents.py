@@ -127,13 +127,6 @@ class ReflexAgent(Agent):
                 score -= 100
             else:
                 score += 200
-
-        # print("actual score : " + str(successorGameState.getScore()))
-        # print("ghost distance : " + str(ghostDistance))
-        # print("food distance : " + str(foodDistance))
-        # print("foodDistance: " + str(foodDistance))
-        print("score", score)
-        print("-----------------------------------------------------")
         return score
 
 
@@ -376,7 +369,30 @@ def betterEvaluationFunction(currentGameState):
     "*** VOTRE EXPLICATION ICI ***"
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    pacmanPos = currentGameState.getPacmanPosition()
+    # food = currentGameState.getFood()
+    ghostStates = currentGameState.getGhostStates()
+    scaredTimes = [ghostState.scaredTimer for ghostState in ghostStates]
+
+    score = 0
+    score += currentGameState.getScore() + len(currentGameState.getFood().asList())
+
+    foodDistance = [manhattanDistance(food, currentGameState.getPacmanPosition()) for food in
+                        currentGameState.getFood().asList()]
+
+    ghostDistance = [manhattanDistance(ghost.getPosition(), pacmanPos) for ghost in
+                         currentGameState.getGhostStates()]
+
+    if sum(foodDistance) > 0:
+        score += 1.0 / sum(foodDistance)
+
+    sumScaredTimes = sum(scaredTimes)
+    if sumScaredTimes > 0:
+        score += sumScaredTimes + sum(ghostDistance) * -1 + len(currentGameState.getCapsules()) * -1
+    else:
+        score += sum(ghostDistance) + len(currentGameState.getCapsules())
+
+    return score
 
 
 # Abbreviation
